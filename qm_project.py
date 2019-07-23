@@ -1,15 +1,4 @@
 import numpy as np
-# DEFAULT DOC STRING TEMPLATE
-#  """
-#  Description of function, single sentence.
-#
-# Parameters
-# ----------
-# param : datatype, optional
-#   longer Description
-# Returns
-# """
-
 
 def atom(ao_index):
     '''Returns the atom index part of an atomic orbital index.'''
@@ -116,7 +105,7 @@ def chi_on_atom(o1, o2, o3, model_parameters):
     if o2 == o3 and o3 in p_orbitals and o1 == 's':
         return model_parameters['dipole']
     return 0.0
-#######
+
 def calculate_chi_tensor(atomic_coordinates, model_parameters):
     '''
     Returns the chi tensor for an input list of atomic coordinates
@@ -224,7 +213,7 @@ def calculate_fock_matrix(hamiltonian_matrix, interaction_matrix,
     chi_tensor : np.array
         Chi Tensor produced by calculate_chi_tensor(). Size (n,n,n) array where n is the number
         of degrees of freedom in the set of coordinates.
-        
+
     Returns
     -------
     fock_matrix : np.array
