@@ -152,7 +152,7 @@ def calculate_interaction_matrix(atomic_coordinates, model_parameters):
             if p == q and orb(p) == 's':
                 interaction_matrix[p,q] = model_parameters['coulomb_s']
             if p == q and orb(p) in p_orbitals:
-                interaction_matrix[p,q] = model_parameters['coulomb_p']                
+                interaction_matrix[p,q] = model_parameters['coulomb_p']
     return interaction_matrix
 
 def chi_on_atom(o1, o2, o3, model_parameters):
@@ -189,7 +189,21 @@ def chi_on_atom(o1, o2, o3, model_parameters):
 
 
 def calculate_chi_tensor(atomic_coordinates, model_parameters):
-    '''Returns the chi tensor for an input list of atomic coordinates'''
+    '''
+    Returns the chi tensor for an input list of atomic coordinates
+
+    Parameters
+    ----------
+    atomic_coordinates : np.array
+        Set of atomic coordinates size (n,3) where n is the number of particles.
+    model_parameters : dictionary
+        dictionary of known semi-empirical constants to be used in calculations
+
+    Returns
+    -------
+    chi_tensor : np.array
+        Size (n,n,n) array where n is the number of degrees of freedom in the set of coordinates.
+    '''
     ndof = len(atomic_coordinates) * orbitals_per_atom
     chi_tensor = np.zeros((ndof, ndof, ndof))
     for p in range(ndof):
@@ -202,7 +216,22 @@ def calculate_chi_tensor(atomic_coordinates, model_parameters):
     return chi_tensor
 
 def calculate_hamiltonian_matrix(atomic_coordinates, model_parameters):
-    '''Returns the 1-body Hamiltonian matrix for an input list of atomic coordinates.'''
+    '''
+    Returns the 1-body Hamiltonian matrix for an input list of atomic coordinates.
+
+    Parameters
+    ----------
+    atomic_coordinates : np.array
+        Set of atomic coordinates size (n,3) where n is the number of particles.
+    model_parameters : dictionary
+        dictionary of known semi-empirical constants to be used in calculations
+
+    Returns
+    -------
+    hamiltonian_matrix : np.array
+        The Hamiltonian Matrix of size (n,n) where n is the number of degrees of freedom in the system
+
+    '''
     ndof = len(atomic_coordinates) * orbitals_per_atom
     hamiltonian_matrix = np.zeros((ndof, ndof))
     potential_vector = calculate_potential_vector(atomic_coordinates,
@@ -227,7 +256,20 @@ def calculate_hamiltonian_matrix(atomic_coordinates, model_parameters):
     return hamiltonian_matrix
 
 def calculate_atomic_density_matrix(atomic_coordinates):
-    '''Returns a trial 1-electron density matrix for an input list of atomic coordinates.'''
+    '''
+    Returns a trial 1-electron density matrix for an input list of atomic coordinates.
+
+    Parameters
+    ----------
+    atomic_coordinates : np.array
+        Set of atomic coordinates size (n,3) where n is the number of particles.
+
+    Returns
+    -------
+    density_matrix : np.array
+        The density matrix of size (n,n) where n is the number of degrees of freedom in the system.
+
+    '''
     ndof = len(atomic_coordinates) * orbitals_per_atom
     density_matrix = np.zeros((ndof, ndof))
     for p in range(ndof):
@@ -236,7 +278,29 @@ def calculate_atomic_density_matrix(atomic_coordinates):
 
 def calculate_fock_matrix(hamiltonian_matrix, interaction_matrix,
                           density_matrix, chi_tensor):
-    '''Returns the Fock matrix defined by the input Hamiltonian, interaction, & density matrices.'''
+    '''
+    Returns the Fock matrix defined by the input Hamiltonian, interaction, & density matrices.
+
+    Parameters
+    ----------
+    hamiltonian_matrix : np.array
+        Hamiltonian Matrix of size (n,n) where n is the number of degrees of freedom in the system,
+        produced by calculate_hamiltonian_matrix()
+    interaction_matrix : np.array
+        Interaction Matrix of size (n,n) where n is the number of degrees of freedom in the system,
+        produced by calculate_interaction_matrix()
+    density_matrix : np.array
+        Density Matrix of size (n,n) where n is the number of degrees of freedom in the system,
+        produced by calculate_atomic_density_matrix()
+    chi_tensor : np.array
+        Chi Tensor produced by calculate_chi_tensor(). Size (n,n,n) array where n is the number
+        of degrees of freedom in the set of coordinates.
+
+    Returns
+    -------
+    fock_matrix : np.array
+        Fock Matrix of the same size as the input Hamiltonian Matrix.
+    '''
     fock_matrix = hamiltonian_matrix.copy()
     fock_matrix += 2.0 * np.einsum('pqt,rsu,tu,rs',
                                    chi_tensor,
@@ -260,9 +324,7 @@ def calculate_density_matrix(fock_matrix):
     occupied_matrix = orbital_matrix[:, :num_occ]
     density_matrix = occupied_matrix @ occupied_matrix.T
     return density_matrix
-
-
-
+#####
 def scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix,
               chi_tensor, max_scf_iterations = 100,
               mixing_fraction = 0.25, convergence_tolerance = 1e-4):
@@ -367,7 +429,7 @@ if __name__ == "__main__":
     'coulomb_s' : 0.3603533286088998,
     'coulomb_p' : -0.003267991835806299
     }
-    
+
     # Start energy calculation
 
     # electron-electron interaction matrix
@@ -378,13 +440,13 @@ if __name__ == "__main__":
     # Initial Hamiltonian and Density matrix
     hamiltonian_matrix = calculate_hamiltonian_matrix(atomic_coordinates, model_parameters)
     density_matrix = calculate_atomic_density_matrix(atomic_coordinates)
-    
+
     # Use density matrix to calculate Fock matrix, then use Fock matrix to calculate new density matrix??
     fock_matrix = calculate_fock_matrix(hamiltonian_matrix, interaction_matrix, density_matrix, chi_tensor)
     density_matrix = calculate_density_matrix(fock_matrix)
 
     # SCF Cycle
-    density_matrix, fock_matrix = scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix, chi_tensor)  
+    density_matrix, fock_matrix = scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix, chi_tensor)
     energy_ion = calculate_energy_ion(atomic_coordinates)
     energy_scf = calculate_energy_scf(hamiltonian_matrix, fock_matrix, density_matrix)
 
