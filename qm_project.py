@@ -47,8 +47,27 @@ def coulomb_energy(o1, o2, r12):
             3.0 * np.dot(vec[o1], r12) * np.dot(vec[o2], r12) / r12_length**5)
     return ans
 
+
+
 def pseudopotential_energy(o, r, model_parameters):
-    '''Returns the energy of a pseudopotential between a multipole of type o and an atom separated by a vector r.'''
+    """Returns the energy of a pseudopotential between a multipole of type o and an atom separated by a vector r.
+
+    Parameters
+    ----------
+    o: str
+        orbital type of 1st orbital
+
+    r: float
+        separation between atom and multipole
+
+    model_parameters: dict,
+        dictionary of parameters/constants for noble gases
+
+    Returns
+    -------
+    ans: float
+        energy of pseudopotential between a multipole of type o and an atom separated by a vector r
+    """
     ans = model_parameters['v_pseudo']
     r_rescaled = r / model_parameters['r_pseudo']
     ans *= np.exp(1.0 - np.dot(r_rescaled, r_rescaled))
@@ -56,9 +75,20 @@ def pseudopotential_energy(o, r, model_parameters):
         ans *= -2.0 * np.dot(vec[o], r_rescaled)
     return ans
 
-
 def calculate_energy_ion(atomic_coordinates):
-    '''Returns the ionic contribution to the total energy for an input list of atomic coordinates.'''
+    """Returns the ionic contribution to the total energy for an input list of atomic coordinates.
+
+    Parameters
+    ----------
+    atomic_coordinates: numpy.ndarray
+        array of atomic coordinates
+
+    Returns
+    -------
+    energy_ion: float
+        ionic contribution to the total energy
+    """
+    
     energy_ion = 0.0
     for i, r_i in enumerate(atomic_coordinates):
         for j, r_j in enumerate(atomic_coordinates):
@@ -68,7 +98,21 @@ def calculate_energy_ion(atomic_coordinates):
     return energy_ion
 
 def calculate_potential_vector(atomic_coordinates, model_parameters):
-    '''Returns the electron-ion potential energy vector for an input list of atomic coordinates.'''
+    """Returns the electron-ion potential energy vector for an input list of atomic coordinates.
+
+    Parameters
+    ----------
+    atomic_coordinates: numpy.ndarray
+        array of atomic coordinates
+
+    model_parameters: dict,
+        dictionary of parameters/constants for noble gases
+
+    Returns
+    -------
+    potential_vector: numpy.ndarray
+        electron-ion potential energy vector
+    """
     ndof = len(atomic_coordinates) * orbitals_per_atom
     potential_vector = np.zeros(ndof)
     for p in range(ndof):
@@ -82,7 +126,22 @@ def calculate_potential_vector(atomic_coordinates, model_parameters):
     return potential_vector
 
 def calculate_interaction_matrix(atomic_coordinates, model_parameters):
-    '''Returns the electron-electron interaction energy matrix for an input list of atomic coordinates.'''
+    """Returns the electron-electron interaction energy matrix for an input list of atomic coordinates.
+
+    Parameters
+    ----------
+    atomic_coordinates: numpy.ndarray
+        array of atomic coordinates
+
+    model_parameters: dict,
+        dictionary of parameters/constants for noble gases
+
+    Returns
+    -------
+    interaction_matrix: numpy.ndarray
+        electron-electron interaction energy matrix
+    """
+    
     ndof = len(atomic_coordinates)*orbitals_per_atom
     interaction_matrix = np.zeros( (ndof,ndof) )
     for p in range(ndof):
@@ -97,7 +156,28 @@ def calculate_interaction_matrix(atomic_coordinates, model_parameters):
     return interaction_matrix
 
 def chi_on_atom(o1, o2, o3, model_parameters):
-    '''Returns the value of the chi tensor for 3 orbital indices on the same atom.'''
+    """Returns the value of the chi tensor for 3 orbital indices on the same atom.
+
+    Parameters
+    ----------
+    o1: str
+        orbital type of 1st orbital
+
+    o2: str
+        orbital type of 2nd orbital
+
+    o3: str
+        orbital type of 3rd orbital
+
+    model_parameters: dict
+        dictionary of parameters/constants for noble gases
+
+    Returns
+    -------
+    chi: float
+        value of chi tensor
+    """
+    
     if o1 == o2 and o3 == 's':
         return 1.0
     if o1 == o3 and o3 in p_orbitals and o2 == 's':
@@ -105,6 +185,8 @@ def chi_on_atom(o1, o2, o3, model_parameters):
     if o2 == o3 and o3 in p_orbitals and o1 == 's':
         return model_parameters['dipole']
     return 0.0
+
+
 
 def calculate_chi_tensor(atomic_coordinates, model_parameters):
     '''Returns the chi tensor for an input list of atomic coordinates'''
@@ -178,6 +260,8 @@ def calculate_density_matrix(fock_matrix):
     occupied_matrix = orbital_matrix[:, :num_occ]
     density_matrix = occupied_matrix @ occupied_matrix.T
     return density_matrix
+
+
 
 def scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix,
               chi_tensor, max_scf_iterations = 100,
