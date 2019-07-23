@@ -328,7 +328,31 @@ def calculate_density_matrix(fock_matrix):
 def scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix,
               chi_tensor, max_scf_iterations = 100,
               mixing_fraction = 0.25, convergence_tolerance = 1e-4):
-    '''Returns converged density & Fock matrices defined by the input Hamiltonian, interaction, & density matrices.'''
+    '''Calculate the density & Fock matrices
+    
+    Parameters
+    ----------
+    hamiltonian_matrix : np.array
+    	The size is [n,n]
+    interaction_matrix : np.array
+    	 The size is [n,n]
+    density_matrix : np.array
+    	 The size is [n,n]
+    chi_tensor : np.array
+    max_scf_iterations : integer, default 100 
+    	The maximum number of scf cycles. 
+    mixing_fraction : float, default 0.25
+    	The fraction of the previous density matrix incorporated into the next guess for the scf cycle
+    convergence_tolerance : float, default 0.0001 (Hartree)
+    	The energy difference between the current and previous scf cycle for which the convergence criterion
+    	is satisfied
+    
+    Returns
+    -------
+    scf_cycle : np.array
+    	Returns converged density & Fock matrices defined by the input Hamiltonian, interaction, & density matrices.
+    	
+    '''
     old_density_matrix = density_matrix.copy()
     for iteration in range(max_scf_iterations):
         new_fock_matrix = calculate_fock_matrix(hamiltonian_matrix, interaction_matrix, old_density_matrix, chi_tensor)
@@ -344,13 +368,38 @@ def scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix,
     return new_density_matrix, new_fock_matrix
 
 def calculate_energy_scf(hamiltonian_matrix, fock_matrix, density_matrix):
-    '''Returns the Hartree-Fock total energy defined by the input Hamiltonian, Fock, & density matrices.'''
+    '''the Hartree-Fock total energy defined by the input Hamiltonian, Fock, & density matrices.
+    
+    Parameters
+    ----------
+    hamiltonian_matrix : np.array
+    	The size is [n,n]
+    fock_matrix : np.array
+    density_matrix : np.array
+    
+    Returns
+    -------
+    energy_scf : np.array
+    	the Hartree-Fock total energy defined by the input Hamiltonian, Fock, & density matrices
+    '''
     energy_scf = np.einsum('pq,pq', hamiltonian_matrix + fock_matrix,
                            density_matrix)
     return energy_scf
 
 def partition_orbitals(fock_matrix):
-    '''Returns a list with the occupied/virtual energies & orbitals defined by the input Fock matrix.'''
+    '''Returns a list with the occupied/virtual energies & orbitals defined by the input Fock matrix.
+    
+    Parameters
+    ----------
+    fock_matrix : np.array
+    
+    Returns
+    -------
+    occupied_energy : np.array
+    virtual_energy : np.array
+    occupies_matrix : np.array
+    virtual_matrix : np.array
+    '''
     num_occ = (ionic_charge // 2) * np.size(fock_matrix,
                                             0) // orbitals_per_atom
     orbital_energy, orbital_matrix = np.linalg.eigh(fock_matrix)
@@ -363,7 +412,19 @@ def partition_orbitals(fock_matrix):
 
 def transform_interaction_tensor(occupied_matrix, virtual_matrix,
                                  interaction_matrix, chi_tensor):
-    '''Returns a transformed V tensor defined by the input occupied, virtual, & interaction matrices.'''
+    '''Calculates an interaction tensor.
+    
+    Parameters
+    ----------
+    occupied_energy : np.array
+    virtual_energy : np.array
+    interaction_matrix : np.array
+    chi_tensor : np.array
+    
+    Returns
+    --------
+    A a transformed V tensor defined by the input occupied, virtual, & interaction matrices
+    '''
     chi2_tensor = np.einsum('qa,ri,qrp',
                             virtual_matrix,
                             occupied_matrix,
@@ -377,7 +438,18 @@ def transform_interaction_tensor(occupied_matrix, virtual_matrix,
     return interaction_tensor
 
 def calculate_energy_mp2(fock_matrix, interaction_matrix, chi_tensor):
-    '''Returns the MP2 contribution to the total energy defined by the input Fock & interaction matrices.'''
+    '''Calculate the MP2 contribution to the total energy defined by the input Fock & interaction matrices.
+    
+    Parameters
+    -----------
+    fock_matrix : np.array
+    interaction_matrix : np.array
+    chi_tensor : np.array
+    
+    Returns
+    -------
+    the MP2 contribution to the total energy defined by the input Fock & interaction matrices
+    '''
     E_occ, E_virt, occupied_matrix, virtual_matrix = partition_orbitals(
         fock_matrix)
     V_tilde = transform_interaction_tensor(occupied_matrix, virtual_matrix,
