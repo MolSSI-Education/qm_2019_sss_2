@@ -1,22 +1,79 @@
 import numpy as np
 
 def atom(ao_index):
-    '''Returns the atom index part of an atomic orbital index.'''
+    '''Returns the atom index part of an atomic orbital index.
+    Parameters
+    ----------
+    ao_index: np.array
+        index of atomic orbital
+
+    Returns
+    -------
+    ao_index // orbitals_per_atom: int
+    '''
     return ao_index // orbitals_per_atom
 
 def orb(ao_index):
-    '''Returns the orbital type of an atomic orbital index.'''
+    '''Returns the orbital type of an atomic orbital index.
+    Parameters
+    ----------
+    ao_index: np.array
+        index of atomic orbital
+
+    orb_index: np.array
+        index of molecular orbital
+
+    orbitals_per_atom: int
+
+    Returns
+    -------
+    ao_index // orbitals_per_atom: int
+    '''
     orb_index = ao_index % orbitals_per_atom
     return orbital_types[orb_index]
 
 def ao_index(atom_p, orb_p):
-    '''Returns the atomic orbital index for a given atom index and orbital type.'''
+    '''Returns the atomic orbital index for a given atom index and orbital type.
+
+    Parameters
+    ----------
+    atom_p: np.array
+        index of atomic orbital
+
+    orb_p: np.array
+        index of molecular orbital
+
+    orbitals_per_atom: int
+        number of orbitals in an atom
+        
+    Returns
+    -------
+    p: int
+        atom index
+    '''
     p = atom_p * orbitals_per_atom
     p += orbital_types.index(orb_p)
     return p
 
 def hopping_energy(o1, o2, r12, model_parameters):
-    '''Returns the hopping matrix element for a pair of orbitals of type o1 & o2 separated by a vector r12.'''
+    '''Returns the hopping matrix element for a pair of orbitals of type o1 & o2 separated by a vector r12.
+    Parameters
+    ----------
+    o1: str
+        type of the orbital 1
+    o2: str
+        type of the orbital 1
+    r12: float
+        distance between two orbitals before rescaling
+
+    model_parameters: float
+        constants and required unit conversions
+
+    Returns
+    -------
+    ans: float
+        Gives hopping energy between orbitals
+    '''
     r12_rescaled = r12 / model_parameters['r_hop']
     r12_length = np.linalg.norm(r12_rescaled)
     ans = np.exp( 1.0 - r12_length**2 )
@@ -33,7 +90,22 @@ def hopping_energy(o1, o2, r12, model_parameters):
     return ans
 
 def coulomb_energy(o1, o2, r12):
-    '''Returns the Coulomb matrix element for a pair of multipoles of type o1 & o2 separated by a vector r12.'''
+    '''Returns the Coulomb matrix element for a pair of multipoles of type o1 & o2 separated by a vector r12.
+    Parameters
+    ----------
+    o1: str
+        type of the orbital 1
+    o2: str
+        type of the orbital 1
+    r12: float
+        distance between two orbitals before rescaling
+
+    Returns
+    -------
+    ans: float
+        Gives coulomb energy between orbitals
+
+    '''
     r12_length = np.linalg.norm(r12)
     if o1 == 's' and o2 == 's':
         ans = 1.0 / r12_length
