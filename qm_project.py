@@ -324,7 +324,9 @@ def calculate_density_matrix(fock_matrix):
     occupied_matrix = orbital_matrix[:, :num_occ]
     density_matrix = occupied_matrix @ occupied_matrix.T
     return density_matrix
-#####
+
+
+
 def scf_cycle(hamiltonian_matrix, interaction_matrix, density_matrix,
               chi_tensor, max_scf_iterations = 100,
               mixing_fraction = 0.25, convergence_tolerance = 1e-4):
