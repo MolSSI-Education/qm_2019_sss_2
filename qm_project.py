@@ -1,23 +1,22 @@
 import numpy as np
-class Atomic_System:
-    def __init__(self,ionic_charge,orbital_types, orbital_occupation,vec):
+class Model:
+    def __init__(self,model_parameters,ionic_charge,orbital_types, orbital_occupation,vec):
+        self.model_parameters = model_parameters
         self.ionic_charge = ionic_charge
         self.orbital_types = orbital_types
         self.orbital_occupation = orbital_occupation
         self.p_orbitals = orbital_types[1:]
         self.orbitals_per_atom = len(orbital_types)
 
-class QM_Model(Atomic_System):
-    def __init__(self,atomic_coordinates,model_parameters,ionic_charge,orbital_types, orbital_occupation,vec):
-        super().__init__(ionic_charge, orbital_types, orbital_occupation,vec)
+class QM_Model():
+    def __init__(self,atomic_coordinates,model):
         self.atomic_coordinates = atomic_coordinates
-        self.model_parameters = model_parameters
-        self.hamiltonian_matrix = self.calculate_hamiltonian_matrix(self.atomic_coordinates, self.model_parameters)
+        self.hamiltonian_matrix = self.calculate_hamiltonian_matrix(self.atomic_coordinates, model.model_parameters)
         self.interaction_matrix = self.calculate_interaction_matrix()
-        self.chi_tensor = self.calculate_chi_tensor(self.atomic_coordinates, self.model_parameters)
+        self.chi_tensor = self.calculate_chi_tensor(self.atomic_coordinates, model.model_parameters)
         self.atomic_density = self.calculate_atomic_density_matrix(self.atomic_coordinates)
-        self.ndof = len(self.atomic_coordinates)*self.orbitals_per_atom
-    
+        self.ndof = len(self.atomic_coordinates)*model.orbitals_per_atom
+
     def calculate_interaction_matrix(self):
         """Returns the electron-electron interaction energy matrix for an input list of atomic coordinates.
 
