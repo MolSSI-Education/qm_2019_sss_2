@@ -1,23 +1,38 @@
 import numpy as np
 
-class AtomicSystem:
-    def __init__(self,ionic_charge,orbital_types, orbital_occupation,vec):
+class Model:
+    def __init__(self,model_parameters,ionic_charge,orbital_types, orbital_occupation,vec):
+        self.model_parameters = model_parameters
         self.ionic_charge = ionic_charge
         self.orbital_types = orbital_types
         self.orbital_occupation = orbital_occupation
         self.p_orbitals = orbital_types[1:]
         self.orbitals_per_atom = len(orbital_types)
 
-class StaticValues(AtomicSystem):
+class StaticValues(Model):
     def __init__(self,atomic_coordinates,model_parameters,ionic_charge,orbital_types, orbital_occupation,vec):
-        .super()__init__(ionic_charge, orbital_types, orbital_occupation,vec)
-        self.atomic_coordinates = atomic_coordinates
-        self.model_parameters = model_parameters
+        super().__init__(ionic_charge, orbital_types, orbital_occupation,vec)
+        self._coordinates = atomic_coordinates
         self.hamiltonian_matrix = self.calculate_hamiltonian_matrix()
         self.interaction_matrix = self.calculate_interaction_matrix()
         self.chi_tensor = self.calculate_chi_tensor()
         self.atomic_density = self.calculate_atomic_density_matrix()
+        self.number_of_atoms = len(self.atomic_coordinates)
         self.ndof = len(self.atomic_coordinates)*self.orbitals_per_atom
+        @property
+        def coordinates(self):
+            return self._coordinates
+        @coordinates.getter
+        def coordinates(self,new_coords):
+            self._coordinates = new_coords
+            # After taking new atomic coordinates, the static values are updated.
+            self.hamiltonian_matrix = self.calculate_hamiltonian_matrix()
+            self.interaction_matrix = self.calculate_interaction_matrix()
+            self.chi_tensor = self.calculate_chi_tensor()
+            self.atomic_density = self.calculate_atomic_density_matrix()
+            self.number_of_atoms = len(self.atomic_coordinates)
+            self.ndof = len(self.atomic_coordinates)*self.orbitals_per_atom
+
     def calculate_interaction_matrix(self):
         """Returns the electron-electron interaction energy matrix for an input list of atomic coordinates.
 
