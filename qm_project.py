@@ -7,16 +7,17 @@ class Atomic_System:
         self.p_orbitals = orbital_types[1:]
         self.orbitals_per_atom = len(orbital_types)
 
-class Single_Calc(Atomic_System):
+class QM_Model(Atomic_System):
     def __init__(self,atomic_coordinates,model_parameters,ionic_charge,orbital_types, orbital_occupation,vec):
-        .super()__init__(ionic_charge, orbital_types, orbital_occupation,vec)
+        super().__init__(ionic_charge, orbital_types, orbital_occupation,vec)
         self.atomic_coordinates = atomic_coordinates
         self.model_parameters = model_parameters
-        self.hamiltonian_matrix = self.calculate_hamiltonian_matrix()
+        self.hamiltonian_matrix = self.calculate_hamiltonian_matrix(self.atomic_coordinates, self.model_parameters)
         self.interaction_matrix = self.calculate_interaction_matrix()
-        self.chi_tensor = self.calculate_chi_tensor()
-        self.atomic_density = self.calculate_atomic_density_matrix()
+        self.chi_tensor = self.calculate_chi_tensor(self.atomic_coordinates, self.model_parameters)
+        self.atomic_density = self.calculate_atomic_density_matrix(self.atomic_coordinates)
         self.ndof = len(self.atomic_coordinates)*self.orbitals_per_atom
+    
     def calculate_interaction_matrix(self):
         """Returns the electron-electron interaction energy matrix for an input list of atomic coordinates.
 
@@ -35,8 +36,8 @@ class Single_Calc(Atomic_System):
         """
 
         interaction_matrix = np.zeros( (self.ndof,self.ndof) )
-        for p in range(ndof):
-            for q in range(ndof):
+        for p in range(self.ndof):
+            for q in range(self.ndof):
                 if atom(p) != atom(q):
                     r_pq = self.atomic_coordinates[atom(p)] - self.atomic_coordinates[atom(q)]
                     interaction_matrix[p,q] = coulomb_energy(orb(p), orb(q), r_pq)
@@ -46,7 +47,7 @@ class Single_Calc(Atomic_System):
                     interaction_matrix[p,q] = self.model_parameters['coulomb_p']
         return interaction_matrix
 
-    def calculate_chi_tensor(atomic_coordinates, model_parameters):
+    def calculate_chi_tensor(self, atomic_coordinates, model_parameters):
         '''
         Returns the chi tensor for an input list of atomic coordinates
 
@@ -73,7 +74,7 @@ class Single_Calc(Atomic_System):
                                                       self.model_parameters)
         return chi_tensor
 
-    def calculate_hamiltonian_matrix(atomic_coordinates, model_parameters):
+    def calculate_hamiltonian_matrix(self, atomic_coordinates, model_parameters):
         '''
         Returns the 1-body Hamiltonian matrix for an input list of atomic coordinates.
 
@@ -103,7 +104,7 @@ class Single_Calc(Atomic_System):
                 if atom(p) == atom(q):
                     if p == q and orb(p) == 's':
                         hamiltonian_matrix[p, q] += self.model_parameters['energy_s']
-                    if p == q and orb(p) in p_orbitals:
+                    if p == q and orb(p) in self.p_orbitals:
                         hamiltonian_matrix[p, q] += self.model_parameters['energy_p']
                     for orb_r in self.orbital_types:
                         r = ao_index(atom(p), orb_r)
@@ -112,7 +113,7 @@ class Single_Calc(Atomic_System):
                             potential_vector[r])
         return hamiltonian_matrix
 
-    def calculate_atomic_density_matrix(atomic_coordinates):
+    def calculate_atomic_density_matrix(self, atomic_coordinates):
         '''
         Returns a trial 1-electron density matrix for an input list of atomic coordinates.
 
@@ -132,10 +133,7 @@ class Single_Calc(Atomic_System):
             density_matrix[p, p] = self.orbital_occupation[orb(p)]
         return density_matrix
 
-# class Atom:
-#     def __init__(self,aoindex):
-#         self.orb=orbital_types[aoindex % orbitals_per_atom]
-#         self.atom = aoindex // orbitals_per_atom
+
 def atom(ao_index):
     '''Returns the atom index part of an atomic orbital index.
     Parameters
