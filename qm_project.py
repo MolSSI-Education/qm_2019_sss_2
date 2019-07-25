@@ -8,7 +8,7 @@ class Model:
         self.p_orbitals = orbital_types[1:]
         self.orbitals_per_atom = len(orbital_types)
 
-class QM_Model():
+class System():
     def __init__(self,atomic_coordinates,model):
         self.atomic_coordinates = atomic_coordinates
         self.hamiltonian_matrix = self.calculate_hamiltonian_matrix(self.atomic_coordinates, model.model_parameters)
@@ -16,6 +16,15 @@ class QM_Model():
         self.chi_tensor = self.calculate_chi_tensor(self.atomic_coordinates, model.model_parameters)
         self.atomic_density = self.calculate_atomic_density_matrix(self.atomic_coordinates)
         self.ndof = len(self.atomic_coordinates)*model.orbitals_per_atom
+        self.orbital = []
+        for i in range(len(self.ndof)):
+            atom= int(floor(i / model.orbitals_per_atom))
+            orbitalnum = i // model.orbitals_per_atom
+            self.orbital.append([atom,model.orbital_types[orbital_num]])
+    def orb(self,index):
+        return self.orbital[index][1]
+    def atom(self,index):
+        return self.orbital[index][0]
 
     def calculate_interaction_matrix(self):
         """Returns the electron-electron interaction energy matrix for an input list of atomic coordinates.
@@ -46,7 +55,7 @@ class QM_Model():
                     interaction_matrix[p,q] = self.model_parameters['coulomb_p']
         return interaction_matrix
 
-    def calculate_chi_tensor(self, atomic_coordinates, model_parameters):
+    def calculate_chi_tensor(self, atomic_coordinates, model):
         '''
         Returns the chi tensor for an input list of atomic coordinates
 
@@ -66,11 +75,11 @@ class QM_Model():
         chi_tensor = np.zeros((self.ndof, self.ndof, self.ndof))
         for p in range(self.ndof):
             for orb_q in self.orbital_types:
-                q = ao_index(atom(p), orb_q)
+                q = p % model.orbitals_per_atom + model.orbital_types.index(orb_q)
                 for orb_r in self.orbital_types:
-                    r = ao_index(atom(p), orb_r)
-                    chi_tensor[p, q, r] = chi_on_atom(orb(p), orb(q), orb(r),
-                                                      self.model_parameters)
+                    r = p % model.orbitals_per_atom + model.orbital_types.index(orb_r)
+                    chi_tensor[p, q, r] = chi_on_atom(self.orb(p), self.orb(q), self.orb(r),
+                                                      model.model_parameters)
         return chi_tensor
 
     def calculate_hamiltonian_matrix(self, atomic_coordinates, model_parameters):
@@ -106,7 +115,7 @@ class QM_Model():
                     if p == q and orb(p) in self.p_orbitals:
                         hamiltonian_matrix[p, q] += self.model_parameters['energy_p']
                     for orb_r in self.orbital_types:
-                        r = ao_index(atom(p), orb_r)
+                        r = p % model.orbitals_per_atom + model.orbital_types.index(orb_r)
                         hamiltonian_matrix[p, q] += (
                             chi_on_atom(orb(p), orb(q), orb_r, self.model_parameters) *
                             potential_vector[r])
@@ -165,28 +174,28 @@ def orb(ao_index):
     orb_index = ao_index % orbitals_per_atom
     return orbital_types[orb_index]
 
-def ao_index(atom_p, orb_p):
-    '''Returns the atomic orbital index for a given atom index and orbital type.
-
-    Parameters
-    ----------
-    atom_p: np.array
-        index of atomic orbital
-
-    orb_p: np.array
-        index of molecular orbital
-
-    orbitals_per_atom: int
-        number of orbitals in an atom
-
-    Returns
-    -------
-    p: int
-        atom index
-    '''
-    p = atom_p * orbitals_per_atom
-    p += orbital_types.index(orb_p)
-    return p
+# def ao_index(atom_p, orb_p):
+#     '''Returns the atomic orbital index for a given atom index and orbital type.
+#
+#     Parameters
+#     ----------
+#     atom_p: np.array
+#         index of atomic orbital
+#
+#     orb_p: np.array
+#         index of molecular orbital
+#
+#     orbitals_per_atom: int
+#         number of orbitals in an atom
+#
+#     Returns
+#     -------
+#     p: int
+#         atom index
+#     '''
+#     p = atom_p * orbitals_per_atom
+#     p += orbital_types.index(orb_p)
+#     return p
 
 def hopping_energy(o1, o2, r12, model_parameters):
     '''Returns the hopping matrix element for a pair of orbitals of type o1 & o2 separated by a vector r12.
