@@ -1,7 +1,7 @@
 # Semi-Empirical Model for Noble Gases
 
 ## Code Design:
-ChemML is developed in the Python 3 programming language and the development follows a strictly modular and object-oriented design to make the overall code as flexible and versatile as possible. NumPy is the only external dependency for this module.
+This code is developed in the Python 3 programming language and the development follows a strictly modular and object-oriented design to make the overall code as flexible and versatile as possible. NumPy is the only external dependency for this module.
 
 ## Latest Version:
 - Program Version: 0.1
