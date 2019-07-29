@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md')) as f:
 if __name__ == "__main__":
     setuptools.setup(
         name='semi_empirical_model',
-        version=semi_empirical_model.__version__,
+#        version=qm_project.__version__,
         author='Gaurav Vishwakarma',
         author_email='gvishwak@buffalo.edu',
         project_urls={

@@ -22,12 +22,12 @@
 project = 'QM_Project'
 copyright = ("2019, Mark Hix. Project structure based on the "
              "Computational Molecular Science Python Cookiecutter version 1.0")
-author = 'Mark Hix'
+author = 'Gaurav Vishwakarma'
 
 # The short X.Y version
-version = ''
+version = '0.1'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,9 +41,12 @@ release = ''
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.mathjax',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.mathjax',                    ### this is useful for converting LATEX directly to html
 ]
 
+autosummary_generate = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

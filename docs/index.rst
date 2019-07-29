@@ -1,16 +1,13 @@
-.. qm_project documentation master file, created by
-   sphinx-quickstart on Thu Mar 15 13:55:56 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to QM_Project's documentation!
+Overview
 =========================================================
+This module uses a semi-empirical model for noble gases.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
+   
+   hf.rst
+   api.rst
 
 Indices and tables
 ==================

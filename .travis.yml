@@ -39,7 +39,7 @@ install:
   - conda activate test
   - pip install numpy
     # Build and install package
-  - python setup.py develop --no-deps
+  - python install -e .[tests, docs]
 
 
 script:
