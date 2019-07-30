@@ -18,7 +18,6 @@ class Model:
         self.orbitals_per_atom = len(orbital_types)
         self.vec = vec
 
-
 class System:
 
     def __init__(self, atomic_coordinates, model):
@@ -321,7 +320,6 @@ class System:
             return self.model.model_parameters['dipole']
         return 0.0
 
-
 class HartreeFock:
     def __init__(self, system, model):
         self.system = system
@@ -469,7 +467,6 @@ class HartreeFock:
 
     def get_hartree_fock_energy(self):
         return self.calculate_energy_scf() + self.system.energy_ion
-
 
 class MP2(HartreeFock):
     def __init__(self, system, model):
