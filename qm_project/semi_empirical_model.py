@@ -336,7 +336,7 @@ class HartreeFock:
         '''
         Returns the Fock matrix defined by the input Hamiltonian, interaction, & density matrices.
 
-<<<<<<< HEAD
+
         Parameters
         ----------
         hamiltonian_matrix : np.array
@@ -372,13 +372,10 @@ class HartreeFock:
                                  optimize=True)
         return fock_matrix
 
-<<<<<<< HEAD
+
 
     @property
     def fock_matrix(self):
-=======
-=======
->>>>>>> baecea001b6d22d08fb61a1e1aae697b58d1fd32
         self._fock_matrix = self.system.hamiltonian_matrix.copy()
         self._fock_matrix += 2.0 * np.einsum(
             'pqt,rsu,tu,rs', self.system.chi_tensor, self.system.chi_tensor, self.system.interaction_matrix, self.system.density_matrix, optimize=True)
@@ -388,18 +385,14 @@ class HartreeFock:
                                 self.system.interaction_matrix,
                                 self.system.density_matrix,
                                 optimize=True)
-        
+
         num_occ = (self.model.ionic_charge // 2) * np.size(self._fock_matrix, 0) // self.model.orbitals_per_atom
         _, orbital_matrix = np.linalg.eigh(self._fock_matrix)
         occupied_matrix = orbital_matrix[:, :num_occ]
         self.density_matrix = occupied_matrix @ occupied_matrix.T
 
     @property
-    def fock_matrix(self):        
-<<<<<<< HEAD
->>>>>>> baecea001b6d22d08fb61a1e1aae697b58d1fd32
-=======
->>>>>>> baecea001b6d22d08fb61a1e1aae697b58d1fd32
+    def fock_matrix(self):
         return self._fock_matrix
 
     @fock_matrix.setter
