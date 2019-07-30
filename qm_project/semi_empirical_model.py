@@ -330,24 +330,24 @@ class HartreeFock:
         self.convergence_tolerance = 1e-4
         self.mixing_fraction = 0.25
 
-        self.fock_matrix = self.system.hamiltonian_matrix.copy()
-        self.fock_matrix += 2.0 * np.einsum(
+        self._fock_matrix = self.system.hamiltonian_matrix.copy()
+        self._fock_matrix += 2.0 * np.einsum(
             'pqt,rsu,tu,rs', self.system.chi_tensor, self.system.chi_tensor, self.system.interaction_matrix, self.system.density_matrix, optimize=True)
-        self.fock_matrix -= np.einsum('rqt,psu,tu,rs',
+        self._fock_matrix -= np.einsum('rqt,psu,tu,rs',
                                 self.system.chi_tensor,
                                 self.system.chi_tensor,
                                 self.system.interaction_matrix,
                                 self.system.density_matrix,
                                 optimize=True)
         
-        num_occ = (self.model.ionic_charge // 2) * np.size(self.fock_matrix, 0) // self.model.orbitals_per_atom
-        _, orbital_matrix = np.linalg.eigh(self.fock_matrix)
+        num_occ = (self.model.ionic_charge // 2) * np.size(self._fock_matrix, 0) // self.model.orbitals_per_atom
+        _, orbital_matrix = np.linalg.eigh(self._fock_matrix)
         occupied_matrix = orbital_matrix[:, :num_occ]
         self.density_matrix = occupied_matrix @ occupied_matrix.T
 
     @property
     def fock_matrix(self):        
-        return self.fock_matrix
+        return self._fock_matrix
 
     @fock_matrix.setter
     def fock_matrix(self, density_matrix):
