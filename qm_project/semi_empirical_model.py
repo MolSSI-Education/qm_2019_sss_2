@@ -8,7 +8,7 @@ import numpy as np
 
 
 class Model:
-    
+
     def __init__(self, model_parameters, ionic_charge, orbital_types, orbital_occupation, vec):
         self.model_parameters = model_parameters
         self.ionic_charge = ionic_charge
@@ -329,43 +329,70 @@ class HartreeFock:
         self.max_scf_iterations = 100
         self.convergence_tolerance = 1e-4
         self.mixing_fraction = 0.25
+        self._fock_matrix = self.calculate_fock_matrix(system.hamiltonian_matrix, system.interaction_matrix, system.density_matrix, system.chi_tensor)
+        self.density_matrix = system.density_matrix
+    def calculate_fock_matrix(self, hamiltonian_matrix, interaction_matrix, density_matrix, chi_tensor):
 
-        self.fock_matrix = self.system.hamiltonian_matrix.copy()
-        self.fock_matrix += 2.0 * np.einsum(
-            'pqt,rsu,tu,rs', self.system.chi_tensor, self.system.chi_tensor, self.system.interaction_matrix, self.system.density_matrix, optimize=True)
-        self.fock_matrix -= np.einsum('rqt,psu,tu,rs',
-                                self.system.chi_tensor,
-                                self.system.chi_tensor,
-                                self.system.interaction_matrix,
-                                self.system.density_matrix,
-                                optimize=True)
-        
-        num_occ = (self.model.ionic_charge // 2) * np.size(self.fock_matrix, 0) // self.model.orbitals_per_atom
-        _, orbital_matrix = np.linalg.eigh(self.fock_matrix)
-        occupied_matrix = orbital_matrix[:, :num_occ]
-        self.density_matrix = occupied_matrix @ occupied_matrix.T
+        '''
+        Returns the Fock matrix defined by the input Hamiltonian, interaction, & density matrices.
+
+        Parameters
+        ----------
+        hamiltonian_matrix : np.array
+            Hamiltonian Matrix of size (n,n) where n is the number of degrees of freedom in the system,
+            produced by calculate_hamiltonian_matrix()
+        interaction_matrix : np.array
+            Interaction Matrix of size (n,n) where n is the number of degrees of freedom in the system,
+            produced by calculate_interaction_matrix()
+        density_matrix : np.array
+            Density Matrix of size (n,n) where n is the number of degrees of freedom in the system,
+            produced by calculate_atomic_density_matrix()
+        chi_tensor : np.array
+            Chi Tensor produced by calculate_chi_tensor(). Size (n,n,n) array where n is the number
+            of degrees of freedom in the set of coordinates.
+
+        Returns
+        -------
+        fock_matrix : np.array
+            Fock Matrix of the same size as the input Hamiltonian Matrix.
+        '''
+        fock_matrix = hamiltonian_matrix.copy()
+        fock_matrix += 2.0 * np.einsum('pqt,rsu,tu,rs',
+                                       chi_tensor,
+                                       chi_tensor,
+                                       interaction_matrix,
+                                       density_matrix,
+                                       optimize=True)
+        fock_matrix -= np.einsum('rqt,psu,tu,rs',
+                                 chi_tensor,
+                                 chi_tensor,
+                                 interaction_matrix,
+                                 density_matrix,
+                                 optimize=True)
+        return fock_matrix
+
 
     @property
-    def fock_matrix(self):        
-        return self.fock_matrix
+    def fock_matrix(self):
+        return self._fock_matrix
 
     @fock_matrix.setter
     def fock_matrix(self, density_matrix):
-        self.fock_matrix = self.system.hamiltonian_matrix.copy()
-        self.fock_matrix += 2.0 * np.einsum(
+        self._fock_matrix = self.system.hamiltonian_matrix.copy()
+        self._fock_matrix += 2.0 * np.einsum(
             'pqt,rsu,tu,rs', self.system.chi_tensor, self.system.chi_tensor, self.system.interaction_matrix, density_matrix, optimize=True)
-        self.fock_matrix -= np.einsum('rqt,psu,tu,rs',
+        self._fock_matrix -= np.einsum('rqt,psu,tu,rs',
                                 self.system.chi_tensor,
                                 self.system.chi_tensor,
                                 self.system.interaction_matrix,
                                 density_matrix,
                                 optimize=True)
-        
+
         num_occ = (self.model.ionic_charge // 2) * np.size(self.fock_matrix, 0) // self.model.orbitals_per_atom
         _, orbital_matrix = np.linalg.eigh(self.fock_matrix)
         occupied_matrix = orbital_matrix[:, :num_occ]
         self.density_matrix = occupied_matrix @ occupied_matrix.T
-        
+
     def scf_cycle(self):
         """Calculate the density & Fock matrices
 
@@ -506,6 +533,3 @@ class MP2(HartreeFock):
                         energy_mp2 -= ((2.0 * V_tilde[a, i, b, j]**2 - V_tilde[a, i, b, j] * V_tilde[a, j, b, i]) /
                                        (E_virt[a] + E_virt[b] - E_occ[i] - E_occ[j]))
         return energy_mp2
-
-
-
