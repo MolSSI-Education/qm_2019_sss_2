@@ -336,6 +336,7 @@ class HartreeFock:
         '''
         Returns the Fock matrix defined by the input Hamiltonian, interaction, & density matrices.
 
+<<<<<<< HEAD
         Parameters
         ----------
         hamiltonian_matrix : np.array
@@ -376,6 +377,8 @@ class HartreeFock:
     @property
     def fock_matrix(self):
 =======
+=======
+>>>>>>> baecea001b6d22d08fb61a1e1aae697b58d1fd32
         self._fock_matrix = self.system.hamiltonian_matrix.copy()
         self._fock_matrix += 2.0 * np.einsum(
             'pqt,rsu,tu,rs', self.system.chi_tensor, self.system.chi_tensor, self.system.interaction_matrix, self.system.density_matrix, optimize=True)
@@ -393,6 +396,9 @@ class HartreeFock:
 
     @property
     def fock_matrix(self):        
+<<<<<<< HEAD
+>>>>>>> baecea001b6d22d08fb61a1e1aae697b58d1fd32
+=======
 >>>>>>> baecea001b6d22d08fb61a1e1aae697b58d1fd32
         return self._fock_matrix
 
