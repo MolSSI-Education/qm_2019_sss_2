@@ -1,4 +1,3 @@
-<<<<<<< HEAD:fock_matrix.cpp
 #include <iostream>
 #include "fock_matrix.hpp"
 #include <vector>
