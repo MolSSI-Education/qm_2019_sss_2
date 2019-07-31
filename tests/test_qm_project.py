@@ -5,7 +5,7 @@ Unit and regression test for the qm_project package.
 # Import package, test suite, and other packages as needed
 from qm_project.semi_empirical_model import *
 import pytest
-import sys
+# import sys
 
 @pytest.fixture
 def system(request):
