@@ -7,7 +7,7 @@ Handles the primary functions
 import numpy as np
 
 
-class Model:
+class Model():
 
     def __init__(self, model_parameters, ionic_charge, orbital_types, orbital_occupation, vec):
         self.model_parameters = model_parameters
@@ -18,7 +18,7 @@ class Model:
         self.orbitals_per_atom = len(orbital_types)
         self.vec = vec
 
-class System:
+class System():
 
     def __init__(self, atomic_coordinates, model):
         self.atomic_coordinates = atomic_coordinates
@@ -329,6 +329,7 @@ class HartreeFock:
         self.mixing_fraction = 0.25
         self._fock_matrix = self.calculate_fock_matrix(system.hamiltonian_matrix, system.interaction_matrix, system.density_matrix, system.chi_tensor)
         self.density_matrix = system.density_matrix
+        
     def calculate_fock_matrix(self, hamiltonian_matrix, interaction_matrix, density_matrix, chi_tensor):
 
         '''
@@ -389,9 +390,6 @@ class HartreeFock:
         occupied_matrix = orbital_matrix[:, :num_occ]
         self.density_matrix = occupied_matrix @ occupied_matrix.T
 
-    @property
-    def fock_matrix(self):
-        return self._fock_matrix
 
     @fock_matrix.setter
     def fock_matrix(self, density_matrix):
