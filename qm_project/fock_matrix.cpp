@@ -28,7 +28,7 @@ void calculate_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen::Matri
 
     int orbitals_per_atom = 4;
     int ndof = hamiltonian_matrix.rows();
-    double fock_matrix = hamiltonian_matrix;
+    Eigen::MatrixXd fock_matrix = hamiltonian_matrix;
 
 
 
