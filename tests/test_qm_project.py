@@ -6,6 +6,7 @@ Unit and regression test for the qm_project package.
 from qm_project.semi_empirical_model import *
 import pytest
 import sys
+
 @pytest.fixture
 def system(request):
    """ Test the coulomb energy """

@@ -4,13 +4,13 @@ language: python
 
 matrix:
   include:
-    # Extra includes for OSX since python language is not available by default on OSX
-    - os: osx
-      language: generic
-      env: PYTHON_VER=3.6
-    - os: osx
-      language: generic
-      env: PYTHON_VER=3.7
+    # # Extra includes for OSX since python language is not available by default on OSX
+    # - os: osx
+    #   language: generic
+    #   env: PYTHON_VER=3.6
+    # - os: osx
+    #   language: generic
+    #   env: PYTHON_VER=3.7
 
 
     - os: linux
@@ -38,6 +38,8 @@ install:
     # Activate the test environment
   - conda activate test
   - pip install numpy
+  - conda install pybind11
+  - conda install eigen
     # Build and install package
   - pip install -e .
 
