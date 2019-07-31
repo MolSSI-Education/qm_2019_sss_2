@@ -38,6 +38,8 @@ install:
     # Activate the test environment
   - conda activate test
   - pip install numpy
+  - conda install pybind11
+  - conda install eigen
     # Build and install package
   - pip install -e .
 
