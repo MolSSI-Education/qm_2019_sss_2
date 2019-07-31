@@ -77,7 +77,7 @@ void calculate_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen::Matri
             //for orb_u in orbital_types:
             for (int orb_u=0; orb_u<orbitals_per_atom; orb_u++)
             {
-                int u = (p / 4)*4 + orb_u); // p & u on same atom
+                int u = (p / 4)*4 + orb_u; // p & u on same atom
                 double chi_psu = chi_on_atom((p%4), orb_s, orb_u, dipole);
                 //for q in range(ndof):
                 for (int q=0; q<ndof; q++)
