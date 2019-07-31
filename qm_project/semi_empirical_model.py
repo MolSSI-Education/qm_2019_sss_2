@@ -329,7 +329,7 @@ class HartreeFock:
         self.mixing_fraction = 0.5
         self._fock_matrix = self.calculate_fock_matrix(system.hamiltonian_matrix, system.interaction_matrix, system.density_matrix, system.chi_tensor)
         self.density_matrix = system.density_matrix
-        
+
     def calculate_fock_matrix(self, hamiltonian_matrix, interaction_matrix, density_matrix, chi_tensor):
 
         '''
@@ -361,8 +361,9 @@ class HartreeFock:
         fock_matrix -= np.einsum('rqt,psu,tu,rs', chi_tensor, chi_tensor, interaction_matrix, density_matrix, optimize=True)
         return fock_matrix
 
-    # @property
-    # def fock_matrix(self):
+    @property
+    def fock_matrix(self):
+        return self._fock_matrix
     #     self._fock_matrix = self.system.hamiltonian_matrix.copy()
     #     self._fock_matrix += 2.0 * np.einsum(
     #         'pqt,rsu,tu,rs', self.system.chi_tensor, self.system.chi_tensor, self.system.interaction_matrix, self.system.density_matrix, optimize=True)
